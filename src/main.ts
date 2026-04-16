@@ -1,13 +1,20 @@
-// 1. Define the function separately
-function healthcheck(ctx: any, logger: any, nk: any, payload: string) {
-    logger.info("Healthcheck RPC called");
-    return JSON.stringify({ status: "ok" });
-}
+function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, initializer: nkruntime.Initializer) {
+    // 1. Register the Game Logic
+    initializer.registerMatch("tictactoe", {
+        init: matchInit,
+        joinAttempt: matchJoinAttempt,
+        join: matchJoin,
+        leave: matchLeave,
+        loop: matchLoop,
+        terminate: matchTerminate,
+        signal: matchSignal,
+    });
 
-// 2. Register it by name inside InitModule
-function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
-    logger.info("Tic Tac Toe Module Loaded Successfully!");
+    // 2. Register the Matchmaker (Pausing two players)
+    initializer.registerMatchmakerMatched((ctx, logger, nk, matched) => {
+        // When 2 players are found, start a match using the 'tictactoe' logic
+        return nk.matchCreate("tictactoe");
+    });
 
-    // Pass the function name 'healthcheck' instead of writing it inline
-    initializer.registerRpc("healthcheck", healthcheck);
+    logger.info("Tic Tac Toe Module & Matchmaker Loaded!");
 }

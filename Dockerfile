@@ -1,22 +1,23 @@
 # STEP 1: Build the TypeScript code
 FROM node:20-alpine AS builder
 
-# Add git so npm can download the heroiclabs logic
+# 1. Install system dependencies
 RUN apk add --no-cache git
 
 WORKDIR /backend
 
+# 2. Copy dependency files and install them
 COPY package*.json ./
+RUN npm install
 
-# This will now work because Git is installed
-RUN npx tsc --module ESNext --target ESNext
-
+# 3. Copy the actual source code
 COPY . .
 
-# Ensure typescript is used to build
-RUN npx tsc
+# 4. Compile the code (Using the project's installed typescript)
+RUN npx tsc --module ESNext --target ESNext
 
 # STEP 2: Run Nakama
 FROM heroiclabs/nakama:3.21.1
 
+# Copy the compiled files into the modules folder
 COPY --from=builder /backend/build/*.js /nakama/data/modules/

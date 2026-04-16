@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "ESNext",
     "moduleResolution": "node",
     "outDir": "./build",
     "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
+    "strict": false,
     "skipLibCheck": true,
+    "removeComments": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"]

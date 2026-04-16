@@ -9,7 +9,7 @@ WORKDIR /backend
 COPY package*.json ./
 
 # This will now work because Git is installed
-RUN npm install
+RUN npx tsc --module ESNext --target ESNext
 
 COPY . .
 

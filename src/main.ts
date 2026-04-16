@@ -1,5 +1,7 @@
-/* @ts-ignore */
-import * as nkruntime from 'nakama-runtime';
-let InitModule: nkruntime.InitModule = function(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, initializer: nkruntime.Initializer) {
-    logger.info("Tic Tac Toe Module Loaded!");
+function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
+    logger.info("Tic Tac Toe Module Loaded Successfully!");
 }
+
+// This line is the "magic" that Nakama needs instead of 'exports'
+// @ts-ignore
+initializer.registerRpc("healthcheck", () => JSON.stringify({status: "ok"}));

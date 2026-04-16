@@ -1,32 +1,34 @@
 // --- DIRECT FUNCTION DECLARATIONS ---
 
-function matchInit(ctx: any, logger: any, nk: any, params: any) {
+function matchInit(ctx, logger, nk, params) {
     logger.info("Match Init Triggered");
     return {
-        state: { 
-            board: Array(9).fill(0), 
-            marks: 0, 
-            winner: 0, 
-            nextPlayer: 1, 
-            presences: {} 
+        state: {
+            board: Array(9).fill(0),
+            marks: 0,
+            winner: 0,
+            nextPlayer: 1,
+            presences: {}
         },
         tickRate: 1,
         label: ""
     };
 }
 
-function matchJoinAttempt(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, presence: any, metadata: any) {
+function matchJoinAttempt(ctx, logger, nk, dispatcher, tick, state, presence, metadata) {
     return { state, accept: true };
 }
 
-function matchJoin(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, presences: any[]) {
-    presences.forEach((p) => { state.presences[p.userId] = p; });
+function matchJoin(ctx, logger, nk, dispatcher, tick, state, presences) {
+    presences.forEach(function(p) {
+        state.presences[p.userId] = p;
+    });
     return { state };
 }
 
-function matchLoop(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, messages: any[]) {
-    messages.forEach((m) => {
-        const data = JSON.parse(new TextDecoder().decode(m.data));
+function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
+    messages.forEach(function(m) {
+        var data = JSON.parse(nk.binaryToString(m.data));
         if (m.opCode === 1 && state.board[data.position - 1] === 0 && state.winner === 0) {
             state.board[data.position - 1] = state.nextPlayer;
             state.nextPlayer = state.nextPlayer === 1 ? 2 : 1;
@@ -36,33 +38,32 @@ function matchLoop(ctx: any, logger: any, nk: any, dispatcher: any, tick: number
     return { state };
 }
 
-function matchLeave(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, presences: any[]) {
+function matchLeave(ctx, logger, nk, dispatcher, tick, state, presences) {
     return { state };
 }
 
-function matchTerminate(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, graceSeconds: number) {
+function matchTerminate(ctx, logger, nk, dispatcher, tick, state, graceSeconds) {
     return { state };
 }
 
-function matchSignal(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, data: string) {
+function matchSignal(ctx, logger, nk, dispatcher, tick, state, data) {
     return { state, data };
 }
 
 // --- INITIALIZER AT THE BOTTOM ---
 
-function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
-    // We pass the functions directly by name
+function InitModule(ctx, logger, nk, initializer) {
     initializer.registerMatch("tictactoe", {
-        init: matchInit,
-        joinAttempt: matchJoinAttempt,
-        join: matchJoin,
-        leave: matchLeave,
-        loop: matchLoop,
-        terminate: matchTerminate,
-        signal: matchSignal,
+        init:          matchInit,          // Key must be 'init'
+        joinAttempt:   matchJoinAttempt,   // Key must be 'joinAttempt'
+        join:          matchJoin,          // Key must be 'join'
+        leave:         matchLeave,         // Key must be 'leave'
+        loop:          matchLoop,          // Key must be 'loop'
+        terminate:     matchTerminate,     // Key must be 'terminate'
+        signal:        matchSignal,        // Key must be 'signal'
     });
 
-    initializer.registerMatchmakerMatched((ctx: any, logger: any, nk: any, matched: any) => {
+    initializer.registerMatchmakerMatched(function(ctx, logger, nk, matched) {
         return nk.matchCreate("tictactoe");
     });
 

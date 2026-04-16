@@ -1,7 +1,9 @@
 function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
+    // 1. Log that we are alive
     logger.info("Tic Tac Toe Module Loaded Successfully!");
-}
 
-// This line is the "magic" that Nakama needs instead of 'exports'
-// @ts-ignore
-initializer.registerRpc("healthcheck", () => JSON.stringify({status: "ok"}));
+    // 2. Register a simple healthcheck function so we can test it
+    initializer.registerRpc("healthcheck", () => {
+        return JSON.stringify({ status: "ok" });
+    });
+}

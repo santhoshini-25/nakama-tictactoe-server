@@ -87,14 +87,14 @@ var matchmakerMatched = function(ctx, logger, nk, matched) {
 // 3. Initializer (MUST be at the very bottom)
 function InitModule(ctx, logger, nk, initializer) {
     initializer.registerMatch("tictactoe", {
-        init: matchInit,
-        joinAttempt: matchJoinAttempt,
-        join: matchJoin,
-        leave: matchLeave,
-        loop: matchLoop,
-        terminate: matchTerminate,
-        signal: matchSignal
-    });
+    matchInit:        matchInit,
+    matchJoinAttempt: matchJoinAttempt,
+    matchJoin:        matchJoin,
+    matchLeave:       matchLeave,
+    matchLoop:        matchLoop,
+    matchTerminate:   matchTerminate,
+    matchSignal:      matchSignal
+});
     initializer.registerMatchmakerMatched(matchmakerMatched);
     logger.info("Tic Tac Toe Module Loaded Successfully!");
 }

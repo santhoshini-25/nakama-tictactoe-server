@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@heroiclabs/nakama-js": "^2.8.0",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2"
+  }
+}

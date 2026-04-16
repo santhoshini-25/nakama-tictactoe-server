@@ -1,4 +1,4 @@
-function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, initializer: nkruntime.Initializer) {
+function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
     // 1. Register the Game Logic
     initializer.registerMatch("tictactoe", {
         init: matchInit,
@@ -10,9 +10,8 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
         signal: matchSignal,
     });
 
-    // 2. Register the Matchmaker (Pausing two players)
-    initializer.registerMatchmakerMatched((ctx, logger, nk, matched) => {
-        // When 2 players are found, start a match using the 'tictactoe' logic
+    // 2. Register the Matchmaker
+    initializer.registerMatchmakerMatched((ctx: any, logger: any, nk: any, matched: any) => {
         return nk.matchCreate("tictactoe");
     });
 

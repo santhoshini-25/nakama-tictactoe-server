@@ -24,18 +24,58 @@ var matchJoin = function(ctx, logger, nk, dispatcher, tick, state, presences) {
     return { state: state };
 };
 
-var matchLoop = function(ctx, logger, nk, dispatcher, tick, state, messages) {
-    for (var i = 0; i < messages.length; i++) {
-        var m = messages[i];
-        var data = JSON.parse(nk.binaryToString(m.data));
-        if (m.opCode === 1 && state.board[data.position - 1] === 0 && state.winner === 0) {
-            state.board[data.position - 1] = state.nextPlayer;
-            state.nextPlayer = state.nextPlayer === 1 ? 2 : 1;
-            dispatcher.broadcastMessage(1, JSON.stringify(state));
+// --- Add this Win Detection helper ---
+function checkWin(board) {
+    const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Cols
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+    for (let line of lines) {
+        const [a, b, c] = line;
+        if (board[a] !== 0 && board[a] === board[b] && board[a] === board[c]) {
+            return board[a]; // Returns 1 or 2
         }
     }
-    return { state: state };
-};
+    return 0;
+}
+
+// --- Update your matchLoop ---
+function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
+    messages.forEach(function(m) {
+        const data = JSON.parse(nk.binaryToString(m.data));
+
+        // Opcode 1: Make Move
+        if (m.opCode === 1) {
+            // Only allow move if square is empty and no winner yet
+            if (state.board[data.position - 1] === 0 && state.winner === 0) {
+                state.board[data.position - 1] = state.nextPlayer;
+                state.marks++;
+                
+                const winner = checkWin(state.board);
+                if (winner !== 0) {
+                    state.winner = winner;
+                } else if (state.marks === 9) {
+                    state.winner = 3; // 3 represents a DRAW
+                } else {
+                    state.nextPlayer = state.nextPlayer === 1 ? 2 : 1;
+                }
+                
+                dispatcher.broadcastMessage(1, JSON.stringify(state));
+            }
+        }
+        
+        // Opcode 2: Play Again (Reset Board)
+        if (m.opCode === 2) {
+            state.board = Array(9).fill(0);
+            state.marks = 0;
+            state.winner = 0;
+            state.nextPlayer = 1;
+            dispatcher.broadcastMessage(1, JSON.stringify(state));
+        }
+    });
+    return { state };
+}
 
 var matchLeave = function(ctx, logger, nk, dispatcher, tick, state, presences) {
     return { state: state };

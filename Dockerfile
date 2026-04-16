@@ -1,10 +1,13 @@
 # STEP 1: Build the TypeScript code
-FROM node:node:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /backend
+
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
+# Copy the rest of the code and compile TypeScript
 COPY . .
 RUN npx tsc
 

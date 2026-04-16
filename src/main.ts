@@ -49,6 +49,11 @@ var matchSignal = function(ctx, logger, nk, dispatcher, tick, state, data) {
     return { state: state, data: data };
 };
 
+// Must also be a named var, not an inline literal
+var matchmakerMatched = function(ctx, logger, nk, matched) {
+    return nk.matchCreate("tictactoe");
+};
+
 function InitModule(ctx, logger, nk, initializer) {
     initializer.registerMatch("tictactoe", {
         matchInit:        matchInit,
@@ -60,9 +65,7 @@ function InitModule(ctx, logger, nk, initializer) {
         matchSignal:      matchSignal
     });
 
-    initializer.registerMatchmakerMatched(function(ctx, logger, nk, matched) {
-        return nk.matchCreate("tictactoe");
-    });
+    initializer.registerMatchmakerMatched(matchmakerMatched);
 
     logger.info("Tic Tac Toe Module & Matchmaker Loaded Successfully!");
 }

@@ -39,40 +39,42 @@ var matchJoin = function(ctx, logger, nk, dispatcher, tick, state, presences) {
             state.presences[p.userId] = Object.keys(state.presences).length + 1;
         }
     });
+
+    // If we have 2 players, broadcast the start state immediately
+    if (Object.keys(state.presences).length === 2) {
+        dispatcher.broadcastMessage(1, JSON.stringify(state));
+    }
+
     return { state: state };
 };
 
 var matchLoop = function(ctx, logger, nk, dispatcher, tick, state, messages) {
-    for (var i = 0; i < messages.length; i++) {
-        var m = messages[i];
-        var data = JSON.parse(nk.binaryToString(m.data));
-        var playerNumber = state.presences[m.sender.userId];
-
-        // OpCode 1: Move
-        if (m.opCode === 1) {
-            if (playerNumber === state.nextPlayer && state.board[data.position - 1] === 0 && state.winner === 0) {
-                state.board[data.position - 1] = state.nextPlayer;
-                state.marks++;
-                var winResult = checkWin(state.board);
-                if (winResult !== 0) {
-                    state.winner = winResult;
-                } else if (state.marks === 9) {
-                    state.winner = 3; // Draw
-                } else {
-                    state.nextPlayer = state.nextPlayer === 1 ? 2 : 1;
+    messages.forEach(function(m) {
+        // Opcode 3 is a sync request from the client
+        if (m.opCode === 3 || m.opCode === 1 || m.opCode === 2) {
+            // If it's a move (Opcode 1), process it first
+            if (m.opCode === 1) {
+                var data = JSON.parse(nk.binaryToString(m.data));
+                var playerNumber = state.presences[m.sender.userId];
+                if (playerNumber === state.nextPlayer && state.board[data.position - 1] === 0 && state.winner === 0) {
+                    state.board[data.position - 1] = state.nextPlayer;
+                    state.marks++;
+                    var winResult = checkWin(state.board);
+                    if (winResult !== 0) { state.winner = winResult; }
+                    else if (state.marks === 9) { state.winner = 3; }
+                    else { state.nextPlayer = state.nextPlayer === 1 ? 2 : 1; }
                 }
-                dispatcher.broadcastMessage(1, JSON.stringify(state));
             }
-        }
-        // OpCode 2: Reset
-        if (m.opCode === 2) {
-            state.board = Array(9).fill(0);
-            state.marks = 0;
-            state.winner = 0;
-            state.nextPlayer = 1;
+            // If it's a reset (Opcode 2)
+            if (m.opCode === 2) {
+                state.board = Array(9).fill(0);
+                state.marks = 0; state.winner = 0; state.nextPlayer = 1;
+            }
+            
+            // ALWAYS broadcast the state back so everyone stays in sync
             dispatcher.broadcastMessage(1, JSON.stringify(state));
         }
-    }
+    });
     return { state: state };
 };
 

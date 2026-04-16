@@ -1,13 +1,7 @@
-// 1. Define functions using the "function Name()" syntax (this allows hoisting)
+// 1. ALL GAME FUNCTIONS FIRST
 function matchInit(ctx: any, logger: any, nk: any, params: any) {
     return {
-        state: {
-            board: Array(9).fill(0),
-            marks: 0,
-            winner: 0,
-            nextPlayer: 1,
-            presences: {}
-        },
+        state: { board: Array(9).fill(0), marks: 0, winner: 0, nextPlayer: 1, presences: {} },
         tickRate: 1,
         label: ""
     };
@@ -18,9 +12,7 @@ function matchJoinAttempt(ctx: any, logger: any, nk: any, dispatcher: any, tick:
 }
 
 function matchJoin(ctx: any, logger: any, nk: any, dispatcher: any, tick: number, state: any, presences: any[]) {
-    presences.forEach((p) => {
-        state.presences[p.userId] = p;
-    });
+    presences.forEach((p) => { state.presences[p.userId] = p; });
     return { state };
 }
 
@@ -48,7 +40,7 @@ function matchSignal(ctx: any, logger: any, nk: any, dispatcher: any, tick: numb
     return { state, data };
 }
 
-// 2. The Main Initializer
+// 2. THE INITIALIZER ALWAYS GOES AT THE VERY BOTTOM
 function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
     initializer.registerMatch("tictactoe", {
         init: matchInit,

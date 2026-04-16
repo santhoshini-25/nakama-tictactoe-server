@@ -1,9 +1,13 @@
+// 1. Define the function separately
+function healthcheck(ctx: any, logger: any, nk: any, payload: string) {
+    logger.info("Healthcheck RPC called");
+    return JSON.stringify({ status: "ok" });
+}
+
+// 2. Register it by name inside InitModule
 function InitModule(ctx: any, logger: any, nk: any, initializer: any) {
-    // 1. Log that we are alive
     logger.info("Tic Tac Toe Module Loaded Successfully!");
 
-    // 2. Register a simple healthcheck function so we can test it
-    initializer.registerRpc("healthcheck", () => {
-        return JSON.stringify({ status: "ok" });
-    });
+    // Pass the function name 'healthcheck' instead of writing it inline
+    initializer.registerRpc("healthcheck", healthcheck);
 }
